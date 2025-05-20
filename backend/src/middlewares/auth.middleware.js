@@ -48,3 +48,19 @@ export const authMiddleware = async (req, res, next) => {
     });
   }
 };
+
+export const checkAdmin = async (req, res, next) => {
+  try {
+    const user = req?.user;
+
+    if (!user || user?.role != "ADMIN") {
+      return res.status(500).json({
+        message: "Forbidden- You do not have permission to create problems",
+      });
+    }
+    next();
+  } catch (error) {
+    console.log("error in admin check", error);
+    res.status(500).json({ message: "Error checking in admin role" });
+  }
+};
