@@ -1,3 +1,4 @@
+import db from "../libs/db.js";
 import {
   getJudge0LanguageId,
   pollBatchResults,
@@ -49,6 +50,32 @@ export const createProblem = async (req, res) => {
       const tokens = submissionResults.map((res) => res.token);
 
       const results = await pollBatchResults(tokens);
+
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.status.id !== 3) {
+          return res.status(400).json({
+            error: `Testcase ${i + 1} failed for language ${language} `,
+          });
+        }
+      }
+
+      const newProblem = await db.Problem.create({
+        data: {
+          title,
+          description,
+          difficulty,
+          tags,
+          examples,
+          constraints,
+          testcases,
+          codeSnippets,
+          referenceSolutions,
+          userId: req.user.id,
+        },
+      });
+
+      return res.status(200).json(newProblem);
     }
   } catch (error) {}
 };

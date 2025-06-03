@@ -21,6 +21,7 @@ export const submitBatch = async (submissions) => {
 
   return data;
 };
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const pollBatchResults = async (tokens) => {
   while (true) {
@@ -35,5 +36,10 @@ export const pollBatchResults = async (tokens) => {
     );
 
     const results = data.submissions;
+    const isAlldone = results.every(
+      (r) => r.status.id !== 1 && r.status.id !== 2
+    );
+    if (isAlldone) return results;
+    await sleep(1000);
   }
 };
